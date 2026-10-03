@@ -471,6 +471,18 @@ static void SetTitleScreenScene(s16 *data, u8 sceneNum)
 
 static void SetTitleScreenScene_Init(s16 *data)
 {
+#if defined(LEAFGREEN)
+    // ThunderYellow checkpoint 1: skip the stock Venusaur/leaf reveal sequence.
+    // The final flattened title renderer owns the presentation; keep title input/cry/menu state machine intact.
+    ScheduleStopScanlineEffect();
+    LoadMainTitleScreenPalsAndResetBgs();
+    ShowBg(0);
+    ShowBg(1);
+    ShowBg(2);
+    ShowBg(3);
+    SetTitleScreenScene(data, TITLESCREENSCENE_RUN);
+    return;
+#endif
     struct ScanlineEffectParams params;
 
     HideBg(0);
@@ -620,7 +632,7 @@ static void SetTitleScreenScene_Run(s16 *data)
 #if defined(FIRERED)
         CreateTask(Task_FlameSpawner, 5);
 #elif defined(LEAFGREEN)
-        CreateTask(Task_LeafSpawner, 5);
+        // ThunderYellow checkpoint 1: no stock LeafGreen leaf/streak overlay.
 #endif
         SetGpuRegsForTitleScreenRun();
         tSlashSpriteId = CreateSlashSprite();
