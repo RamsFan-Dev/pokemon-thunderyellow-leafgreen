@@ -5,6 +5,8 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+# checkpoint-1 build trigger
+
 jobs:
   build-leafgreen-rev1:
     runs-on: ubuntu-latest
