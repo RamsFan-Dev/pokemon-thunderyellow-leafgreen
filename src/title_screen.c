@@ -62,7 +62,7 @@ static void SpriteCallback_TitleScreenFlame(struct Sprite *sprite);
 static void Task_FlameSpawner(u8 taskId);
 #elif defined(LEAFGREEN)
 static void SpriteCallback_TitleScreenLeaf(struct Sprite *sprite);
-static void Task_LeafSpawner(u8 taskId);
+static void Task_LeafSpawner(u8 taskId); // retained for native title timing; ThunderYellow graphics replace leaf visuals
 #endif
 static void TitleScreen_srand(u8 taskId, u8 field, u16 seed);
 static u16 TitleScreen_rand(u8 taskId, u8 field);
