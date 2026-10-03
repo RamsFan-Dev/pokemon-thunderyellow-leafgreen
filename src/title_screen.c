@@ -628,14 +628,17 @@ static void SetTitleScreenScene_Run(s16 *data)
     {
     case 0:
         SetHelpContext(HELPCONTEXT_TITLE_SCREEN);
-        CreateTask(Task_TitleScreen_BlinkPressStart, 0);
 #if defined(FIRERED)
+        CreateTask(Task_TitleScreen_BlinkPressStart, 0);
         CreateTask(Task_FlameSpawner, 5);
-#elif defined(LEAFGREEN)
-        // ThunderYellow checkpoint 1: no stock LeafGreen leaf/streak overlay.
-#endif
         SetGpuRegsForTitleScreenRun();
         tSlashSpriteId = CreateSlashSprite();
+#elif defined(LEAFGREEN)
+        // ThunderYellow checkpoint 1: the flat Mode 4 renderer owns the full screen.
+        // Do not create the stock blink, leaf, slash/window, or blend effects.
+        SetGpuReg(REG_OFFSET_BLDCNT, 0);
+        SetGpuReg(REG_OFFSET_BLDY, 0);
+#endif
         HelpSystem_Enable();
         tState++;
         // fallthrough
@@ -725,7 +728,9 @@ static void SetTitleScreenScene_Cry(s16 *data)
         if (!gPaletteFade.active)
         {
             PlayCry_Normal(TITLE_SPECIES, 0);
+#if defined(FIRERED)
             DeactivateSlashSprite(tSlashSpriteId);
+#endif
             data[2] = 0;
             tState++;
         }
@@ -733,10 +738,12 @@ static void SetTitleScreenScene_Cry(s16 *data)
     case 1:
         if (data[2] < 90)
             data[2]++;
-        else if (!IsSlashSpriteDeactivated(tSlashSpriteId))
+        else
         {
-            BeginNormalPaletteFade((PALETTES_ALL & ~(1 << 0x1C) & ~(1 << 0x1D) & ~(1 << 0x1E) & ~(1 << 0x1F)), 0, 0, 16, RGB_WHITE);
+            BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_WHITE);
+#if defined(FIRERED)
             SignalEndTitleScreenPaletteSomethingTask();
+#endif
             FadeOutBGM(4);
             tState++;
         }
