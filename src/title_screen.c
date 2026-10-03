@@ -398,6 +398,8 @@ void CB2_InitTitleScreen(void)
         break;
     case 1:
 #if defined(LEAFGREEN)
+        // Keep the flat framebuffer deterministic until its generated payload is linked.
+        DmaFill16(3, 0, (void *)VRAM, 240 * 160);
         LoadPalette(sThunderYellowTitlePalette, 0, sizeof(sThunderYellowTitlePalette));
 #elif defined(FIRERED)
         LoadPalette(gGraphics_TitleScreen_GameTitleLogoPals, BG_PLTT_ID(0), 13 * PLTT_SIZE_4BPP);
