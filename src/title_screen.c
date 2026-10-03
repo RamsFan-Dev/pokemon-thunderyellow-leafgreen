@@ -454,10 +454,15 @@ static void Task_TitleScreenMain(u8 taskId)
         && tSceneNum != TITLESCREENSCENE_RESTART
         && tSceneNum != TITLESCREENSCENE_CRY)
     {
+#if defined(LEAFGREEN)
+        ScheduleStopScanlineEffect();
+        SetTitleScreenScene(data, TITLESCREENSCENE_RUN);
+#else
         ScheduleStopScanlineEffect();
         LoadMainTitleScreenPalsAndResetBgs();
         SetPalOnOrCreateBlankSprite(tHasCreatedBlankSprite);
         SetTitleScreenScene(data, TITLESCREENSCENE_RUN);
+#endif
     }
     else
         sSceneFuncs[tSceneNum](data);
@@ -475,11 +480,6 @@ static void SetTitleScreenScene_Init(s16 *data)
     // ThunderYellow checkpoint 1: skip the stock Venusaur/leaf reveal sequence.
     // The final flattened title renderer owns the presentation; keep title input/cry/menu state machine intact.
     ScheduleStopScanlineEffect();
-    LoadMainTitleScreenPalsAndResetBgs();
-    ShowBg(0);
-    ShowBg(1);
-    ShowBg(2);
-    ShowBg(3);
     SetTitleScreenScene(data, TITLESCREENSCENE_RUN);
     return;
 #endif
@@ -645,7 +645,9 @@ static void SetTitleScreenScene_Run(s16 *data)
     case 1:
         if (JOY_HELD(KEYSTROKE_DELSAVE) == KEYSTROKE_DELSAVE)
         {
+#if defined(FIRERED)
             DeactivateSlashSprite(tSlashSpriteId);
+#endif
             DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
             SetMainCallback2(CB2_FadeOutTransitionToSaveClearScreen);
         }
@@ -654,7 +656,9 @@ static void SetTitleScreenScene_Run(s16 *data)
 #else
         else if (JOY_HELD(KEYSTROKE_BERRY_FIX) == KEYSTROKE_BERRY_FIX)
         {
+#if defined(FIRERED)
             DeactivateSlashSprite(tSlashSpriteId);
+#endif
             DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
             SetMainCallback2(CB2_FadeOutTransitionToBerryFix);
         }
