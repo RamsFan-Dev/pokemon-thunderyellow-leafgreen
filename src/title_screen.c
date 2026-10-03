@@ -92,6 +92,25 @@ static const u16 sThunderYellowTitlePalette[256] = {
 0x7401,0x7400,0x7400,0x7000,0x4C01,0x0C20,0x5C00,0x0C00,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,
 0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000
 };
+
+#if defined(LEAFGREEN)
+// Checkpoint-1 flat framebuffer staging area. The marker makes the 38,400-byte
+// payload location deterministic in the built ROM for the Delta test patch.
+#define THUNDERYELLOW_TITLE_MARKER_WORDS 8
+static const volatile u16 sThunderYellowTitleBitmap[THUNDERYELLOW_TITLE_MARKER_WORDS + (240 * 160 / 2)] = {
+    0x5954, 0x4D5F, 0x444F, 0x3445, 0x425F, 0x5449, 0x414D, 0x0050
+};
+
+static void LoadThunderYellowMode4Title(void)
+{
+    u32 i;
+    const volatile u16 *src = &sThunderYellowTitleBitmap[THUNDERYELLOW_TITLE_MARKER_WORDS];
+    vu16 *dst = (vu16 *)VRAM;
+    for (i = 0; i < 240 * 160 / 2; i++)
+        dst[i] = src[i];
+    LoadPalette(sThunderYellowTitlePalette, 0, sizeof(sThunderYellowTitlePalette));
+}
+#endif
 #endif
 
 static const u8 sBorderBgTiles[] = INCBIN_U8("graphics/title_screen/border_bg.4bpp.lz");
@@ -399,8 +418,7 @@ void CB2_InitTitleScreen(void)
     case 1:
 #if defined(LEAFGREEN)
         // Keep the flat framebuffer deterministic until its generated payload is linked.
-        DmaFill16(3, 0, (void *)VRAM, 240 * 160);
-        LoadPalette(sThunderYellowTitlePalette, 0, sizeof(sThunderYellowTitlePalette));
+        LoadThunderYellowMode4Title();
 #elif defined(FIRERED)
         LoadPalette(gGraphics_TitleScreen_GameTitleLogoPals, BG_PLTT_ID(0), 13 * PLTT_SIZE_4BPP);
         DecompressAndCopyTileDataToVram(0, gGraphics_TitleScreen_GameTitleLogoTiles, 0, 0, 0);
