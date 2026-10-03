@@ -105,8 +105,18 @@ static void LoadThunderYellowMode4Title(void)
     u32 i;
     const volatile u16 *src = &sThunderYellowTitleBitmap[THUNDERYELLOW_TITLE_MARKER_WORDS];
     vu16 *dst = (vu16 *)VRAM;
+
+    // Mode 4 uses palette index 0 as a normal framebuffer color, so write the
+    // complete page before enabling the title scene.
     for (i = 0; i < 240 * 160 / 2; i++)
         dst[i] = src[i];
+
+    // Mirror the frame to the second Mode 4 page as well. This prevents a
+    // stray page-select bit from exposing uninitialized VRAM during startup.
+    dst = (vu16 *)((u8 *)VRAM + 0xA000);
+    for (i = 0; i < 240 * 160 / 2; i++)
+        dst[i] = src[i];
+
     LoadPalette(sThunderYellowTitlePalette, 0, sizeof(sThunderYellowTitlePalette));
 }
 #endif
