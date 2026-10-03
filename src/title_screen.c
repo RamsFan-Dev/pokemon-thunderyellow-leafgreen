@@ -681,6 +681,33 @@ static void SetGpuRegsForTitleScreenRun(void)
 
 static void SetTitleScreenScene_Restart(s16 *data)
 {
+#if defined(LEAFGREEN)
+    // ThunderYellow checkpoint 1: flat title has no slash or blink task to retire.
+    switch (tState)
+    {
+    case 0:
+        FadeOutMapMusic(10);
+        BeginNormalPaletteFade(PALETTES_ALL, 3, 0, 16, RGB_BLACK);
+        tState++;
+        break;
+    case 1:
+        if (IsNotWaitingForBGMStop() && !gPaletteFade.active)
+        {
+            data[2] = 0;
+            tState++;
+        }
+        break;
+    case 2:
+        if (++data[2] >= 20)
+            tState++;
+        break;
+    case 3:
+        HelpSystem_Disable();
+        DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
+        SetMainCallback2(CB2_InitCopyrightScreenAfterTitleScreen);
+        break;
+    }
+#else
     switch (tState)
     {
     case 0:
@@ -718,6 +745,7 @@ static void SetTitleScreenScene_Restart(s16 *data)
         SetMainCallback2(CB2_InitCopyrightScreenAfterTitleScreen);
         break;
     }
+#endif
 }
 
 static void SetTitleScreenScene_Cry(s16 *data)
