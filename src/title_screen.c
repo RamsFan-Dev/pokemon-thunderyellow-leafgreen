@@ -358,12 +358,25 @@ void CB2_InitTitleScreen(void)
         DmaFill16(3, 0, (void *)VRAM, VRAM_SIZE);
         DmaFill32(3, 0, (void *)OAM, OAM_SIZE);
         DmaFill16(3, 0, (void *)PLTT, PLTT_SIZE);
+#if defined(LEAFGREEN)
+        // ThunderYellow checkpoint 1 uses a flat 240x160 Mode 4 title.
+        // Keep the stock tiled title engine completely out of this branch.
+        REG_BG2PA = 0x100;
+        REG_BG2PB = 0;
+        REG_BG2PC = 0;
+        REG_BG2PD = 0x100;
+        REG_BG2X = 0;
+        REG_BG2Y = 0;
+        SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_MODE_4 | DISPCNT_BG2_ON);
+#else
         ResetBgsAndClearDma3BusyFlags(FALSE);
         InitBgsFromTemplates(0, sBgTemplates, NELEMS(sBgTemplates));
         SetGpuRegBits(REG_OFFSET_DISPCNT, DISPCNT_OBJ_1D_MAP | DISPCNT_OBJ_ON);
+#endif
         sTitleScreenTimerTaskId = TASK_NONE;
         break;
     case 1:
+#if defined(FIRERED)
         LoadPalette(gGraphics_TitleScreen_GameTitleLogoPals, BG_PLTT_ID(0), 13 * PLTT_SIZE_4BPP);
         DecompressAndCopyTileDataToVram(0, gGraphics_TitleScreen_GameTitleLogoTiles, 0, 0, 0);
         DecompressAndCopyTileDataToVram(0, gGraphics_TitleScreen_GameTitleLogoMap, 0, 0, 1);
@@ -377,8 +390,17 @@ void CB2_InitTitleScreen(void)
         DecompressAndCopyTileDataToVram(3, sBorderBgTiles, 0, 0, 0);
         DecompressAndCopyTileDataToVram(3, sBorderBgMap, 0, 0, 1);
         LoadSpriteGfxAndPals();
+#endif
         break;
     case 2:
+#if defined(LEAFGREEN)
+        CreateTask(Task_TitleScreenMain, 4);
+        sTitleScreenTimerTaskId = CreateTask(Task_TitleScreenTimer, 2);
+        SetVBlankCallback(VBlankCB);
+        SetMainCallback2(CB2_TitleScreenRun);
+        m4aSongNumStart(MUS_TITLE);
+        return;
+#else
         if (!FreeTempTileDataBuffersIfPossible())
         {
             BlendPalettes(PALETTES_BG, 16, RGB_BLACK);
@@ -389,6 +411,7 @@ void CB2_InitTitleScreen(void)
             m4aSongNumStart(MUS_TITLE);
         }
         return;
+#endif
     }
     gMain.state++;
 }
