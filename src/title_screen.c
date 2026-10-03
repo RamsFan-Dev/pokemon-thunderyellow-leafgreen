@@ -30,7 +30,7 @@ enum TitleScreenScene
 #if   defined(FIRERED)
 #define TITLE_SPECIES SPECIES_CHARIZARD
 #elif defined(LEAFGREEN)
-#define TITLE_SPECIES SPECIES_VENUSAUR
+#define TITLE_SPECIES SPECIES_PIKACHU
 #endif
 
 static EWRAM_DATA u8 sTitleScreenTimerTaskId = 0;
