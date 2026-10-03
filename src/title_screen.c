@@ -93,7 +93,6 @@ static const u16 sThunderYellowTitlePalette[256] = {
 0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000
 };
 
-#if defined(LEAFGREEN)
 // Checkpoint-1 flat framebuffer staging area. The marker makes the 38,400-byte
 // payload location deterministic in the built ROM for the Delta test patch.
 #define THUNDERYELLOW_TITLE_MARKER_WORDS 8
@@ -110,7 +109,6 @@ static void LoadThunderYellowMode4Title(void)
         dst[i] = src[i];
     LoadPalette(sThunderYellowTitlePalette, 0, sizeof(sThunderYellowTitlePalette));
 }
-#endif
 #endif
 
 static const u8 sBorderBgTiles[] = INCBIN_U8("graphics/title_screen/border_bg.4bpp.lz");
