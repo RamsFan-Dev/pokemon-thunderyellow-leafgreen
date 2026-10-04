@@ -3,7 +3,7 @@ name: ThunderYellow LeafGreen Checkpoint 1
 on:
   workflow_dispatch:
   push:
-    branches: [ main, checkpoint1-test8-verified ]
+    branches: [ main, checkpoint1-test8-verified, checkpoint1-audio-work ]
     paths:
       - "src/title_screen.c"
       - "graphics/title_screen/**"
