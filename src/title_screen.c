@@ -3,6 +3,7 @@
 #include "task.h"
 #include "new_menu_helpers.h"
 #include "m4a.h"
+#include "sound.h"
 #include "scanline_effect.h"
 #include "graphics.h"
 #include "help_system.h"
@@ -861,15 +862,16 @@ static void SetTitleScreenScene_Cry(s16 *data)
     switch (tState)
     {
     case 0:
-        // Audio donor work: do not use the stock Gen III Pikachu cry here.
-        // That cry is the electronic/roar-like sound the user rejected.
-        // Keep the approved visual and transition path intact while the
-        // spoken Pikachu title sample is transplanted separately.
+        // Title-only spoken Pikachu voice recovered from the Kevin donor ROM.
+        // Do not call PlayCry_Normal here; that is the stock Gen III cry.
+        PlayPikachuTitleVoice();
         data[2] = 0;
         tState++;
         break;
     case 1:
-        if (++data[2] >= 2)
+        // The donor voice is ~0.72 seconds. Hold the approved title visual
+        // long enough for it to finish before the main-menu sound reset.
+        if (++data[2] >= 60)
             tState++;
         break;
     case 2:
