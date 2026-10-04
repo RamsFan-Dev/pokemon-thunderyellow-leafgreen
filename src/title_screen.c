@@ -515,7 +515,9 @@ static void VBlankCB(void)
 #endif
     LoadOam();
     ProcessSpriteCopyRequests();
+#if !defined(LEAFGREEN)
     TransferPlttBuffer();
+#endif
     ScanlineEffect_InitHBlankDmaTransfer();
 
     if (sTitleScreenTimerTaskId != TASK_NONE)
