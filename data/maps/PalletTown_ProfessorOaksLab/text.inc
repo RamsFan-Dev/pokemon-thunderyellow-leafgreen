@@ -165,6 +165,8 @@ PalletTown_ProfessorOaksLab_Text_OakPokedexOnDesk::
     .string "the POKéDEX!\p"
     .string "It automatically records data on\n"
     .string "POKéMON you've seen or caught.\p"
+    .string "It can record data on all 386\n"
+    .string "known POKéMON species.\p"
     .string "It's a high-tech encyclopedia!$"
 
 PalletTown_ProfessorOaksLab_Text_OakTakeTheseWithYou::
