@@ -782,7 +782,7 @@ static void SetTitleScreenScene_Run(s16 *data)
             }
             InitHeap(gHeap, HEAP_SIZE);
             SetMainCallback2(CB2_InitMainMenu);
-            DestroyTask(taskId);
+            DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
             return;
 #else
             SetTitleScreenScene(data, TITLESCREENSCENE_CRY);
