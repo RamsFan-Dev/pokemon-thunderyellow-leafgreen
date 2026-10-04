@@ -1,0 +1,27 @@
+ThunderYellow LeafGreen — CHECKPOINT 1 TITLE + AUDIO LOCK
+
+Status: USER-APPROVED PASS
+Approved test ROM:
+ThunderYellow-LeafGreen-Test8R4-SpokenPikachu.gba
+
+Approved ROM SHA-256:
+67b1edb19bf527828ea4f74b756b0263357e042766e28d96aed57dc769c4d267
+
+Locked renderer/audio commit:
+d2181ef2f16371f8588609400afa23d63095314c
+
+Approved behavior:
+- ThunderYellow title visual displays correctly.
+- Bulbasaur/Venusaur-style title roar is removed.
+- Spoken Pikachu title voice plays on A/Start.
+- Title visual remains unchanged during audio playback.
+- Main-menu handoff remains intact.
+
+Visual baseline retained from prior lock:
+- Mode 4 framebuffer SHA-256:
+  36e8f90cdafdf58c92aef63ad6480ee757c10f4a4d06bb20f9f9201e0a59645f
+- Palette SHA-256:
+  0750c1b18486910bd51f27c1e96f3208390627f41d17757c0af78e6e6c4a55dc
+
+This branch is the permanent rollback point for Checkpoint 1.
+Do not modify it for later gameplay, Josh, Gary, Oak, follower, dialogue, or overworld work.
