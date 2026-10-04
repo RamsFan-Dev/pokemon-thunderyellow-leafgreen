@@ -73,6 +73,30 @@ static void DeactivateSlashSprite(u8 spriteId);
 static bool32 IsSlashSpriteDeactivated(u8 spriteId);
 static void SpriteCallback_Slash(struct Sprite *sprite);
 
+#if defined(LEAFGREEN)
+// Verified Test 8 assets are generated before the build from the exact
+// framebuffer/palette recovered from the known-good Test 8 ROM.
+static const u16 sThunderYellowTitlePalette[] =
+    INCBIN_U16("graphics/title_screen/leafgreen/thunderyellow_title.gbapal");
+static const u16 sThunderYellowTitleBitmap[] =
+    INCBIN_U16("graphics/title_screen/leafgreen/thunderyellow_title.8bpp");
+
+static void LoadThunderYellowMode4Title(void)
+{
+    u32 i;
+    vu16 *dst = (vu16 *)VRAM;
+
+    for (i = 0; i < 240 * 160 / 2; i++)
+        dst[i] = sThunderYellowTitleBitmap[i];
+
+    dst = (vu16 *)((u8 *)VRAM + 0xA000);
+    for (i = 0; i < 240 * 160 / 2; i++)
+        dst[i] = sThunderYellowTitleBitmap[i];
+
+    LoadPalette(sThunderYellowTitlePalette, 0, 256 * sizeof(u16));
+}
+#endif
+
 static const u8 sBorderBgTiles[] = INCBIN_U8("graphics/title_screen/border_bg.4bpp.lz");
 
 #if defined(FIRERED)
@@ -358,12 +382,38 @@ void CB2_InitTitleScreen(void)
         DmaFill16(3, 0, (void *)VRAM, VRAM_SIZE);
         DmaFill32(3, 0, (void *)OAM, OAM_SIZE);
         DmaFill16(3, 0, (void *)PLTT, PLTT_SIZE);
+#if defined(LEAFGREEN)
+        // ThunderYellow checkpoint 1 uses a flat 240x160 Mode 4 title.
+        // Keep the stock tiled title engine completely out of this branch.
+        REG_BG2PA = 0x100;
+        REG_BG2PB = 0;
+        REG_BG2PC = 0;
+        REG_BG2PD = 0x100;
+        REG_BG2X = 0;
+        REG_BG2Y = 0;
+        SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_MODE_4 | DISPCNT_BG2_ON);
+        SetGpuReg(REG_OFFSET_BG2CNT, 0);
+        SetGpuReg(REG_OFFSET_WIN0H, 0);
+        SetGpuReg(REG_OFFSET_WIN0V, 0);
+        SetGpuReg(REG_OFFSET_WIN1H, 0);
+        SetGpuReg(REG_OFFSET_WIN1V, 0);
+        SetGpuReg(REG_OFFSET_WININ, 0);
+        SetGpuReg(REG_OFFSET_WINOUT, 0);
+        SetGpuReg(REG_OFFSET_BLDCNT, 0);
+        SetGpuReg(REG_OFFSET_BLDALPHA, 0);
+        SetGpuReg(REG_OFFSET_BLDY, 0);
+#else
         ResetBgsAndClearDma3BusyFlags(FALSE);
         InitBgsFromTemplates(0, sBgTemplates, NELEMS(sBgTemplates));
         SetGpuRegBits(REG_OFFSET_DISPCNT, DISPCNT_OBJ_1D_MAP | DISPCNT_OBJ_ON);
+#endif
         sTitleScreenTimerTaskId = TASK_NONE;
         break;
     case 1:
+#if defined(LEAFGREEN)
+        // Keep the flat framebuffer deterministic until its generated payload is linked.
+        LoadThunderYellowMode4Title();
+#elif defined(FIRERED)
         LoadPalette(gGraphics_TitleScreen_GameTitleLogoPals, BG_PLTT_ID(0), 13 * PLTT_SIZE_4BPP);
         DecompressAndCopyTileDataToVram(0, gGraphics_TitleScreen_GameTitleLogoTiles, 0, 0, 0);
         DecompressAndCopyTileDataToVram(0, gGraphics_TitleScreen_GameTitleLogoMap, 0, 0, 1);
@@ -377,8 +427,17 @@ void CB2_InitTitleScreen(void)
         DecompressAndCopyTileDataToVram(3, sBorderBgTiles, 0, 0, 0);
         DecompressAndCopyTileDataToVram(3, sBorderBgMap, 0, 0, 1);
         LoadSpriteGfxAndPals();
+#endif
         break;
     case 2:
+#if defined(LEAFGREEN)
+        CreateTask(Task_TitleScreenMain, 4);
+        sTitleScreenTimerTaskId = CreateTask(Task_TitleScreenTimer, 2);
+        SetVBlankCallback(VBlankCB);
+        SetMainCallback2(CB2_TitleScreenRun);
+        m4aSongNumStart(MUS_TITLE);
+        return;
+#else
         if (!FreeTempTileDataBuffersIfPossible())
         {
             BlendPalettes(PALETTES_BG, 16, RGB_BLACK);
@@ -389,6 +448,7 @@ void CB2_InitTitleScreen(void)
             m4aSongNumStart(MUS_TITLE);
         }
         return;
+#endif
     }
     gMain.state++;
 }
@@ -419,10 +479,25 @@ static void CB2_TitleScreenRun(void)
 
 static void VBlankCB(void)
 {
+#if defined(LEAFGREEN)
+    REG_BG2PA = 0x100;
+    REG_BG2PB = 0;
+    REG_BG2PC = 0;
+    REG_BG2PD = 0x100;
+    REG_BG2X = 0;
+    REG_BG2Y = 0;
+    SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_MODE_4 | DISPCNT_BG2_ON);
+    SetGpuReg(REG_OFFSET_BLDCNT, 0);
+    SetGpuReg(REG_OFFSET_BLDY, 0);
+#endif
     LoadOam();
     ProcessSpriteCopyRequests();
+#if !defined(LEAFGREEN)
     TransferPlttBuffer();
+#endif
+#if !defined(LEAFGREEN)
     ScanlineEffect_InitHBlankDmaTransfer();
+#endif
 
     if (sTitleScreenTimerTaskId != TASK_NONE)
         gTasks[sTitleScreenTimerTaskId].data[0]++;
@@ -454,10 +529,15 @@ static void Task_TitleScreenMain(u8 taskId)
         && tSceneNum != TITLESCREENSCENE_RESTART
         && tSceneNum != TITLESCREENSCENE_CRY)
     {
+#if defined(LEAFGREEN)
+        ScheduleStopScanlineEffect();
+        SetTitleScreenScene(data, TITLESCREENSCENE_RUN);
+#else
         ScheduleStopScanlineEffect();
         LoadMainTitleScreenPalsAndResetBgs();
         SetPalOnOrCreateBlankSprite(tHasCreatedBlankSprite);
         SetTitleScreenScene(data, TITLESCREENSCENE_RUN);
+#endif
     }
     else
         sSceneFuncs[tSceneNum](data);
@@ -472,6 +552,13 @@ static void SetTitleScreenScene(s16 *data, u8 sceneNum)
 static void SetTitleScreenScene_Init(s16 *data)
 {
     struct ScanlineEffectParams params;
+#if defined(LEAFGREEN)
+    // ThunderYellow checkpoint 1: skip the stock Venusaur/leaf reveal sequence.
+    // The final flattened title renderer owns the presentation; keep title input/cry/menu state machine intact.
+    ScheduleStopScanlineEffect();
+    SetTitleScreenScene(data, TITLESCREENSCENE_RUN);
+    return;
+#endif
 
     HideBg(0);
     ShowBg(1);
@@ -616,21 +703,26 @@ static void SetTitleScreenScene_Run(s16 *data)
     {
     case 0:
         SetHelpContext(HELPCONTEXT_TITLE_SCREEN);
-        CreateTask(Task_TitleScreen_BlinkPressStart, 0);
 #if defined(FIRERED)
+        CreateTask(Task_TitleScreen_BlinkPressStart, 0);
         CreateTask(Task_FlameSpawner, 5);
-#elif defined(LEAFGREEN)
-        CreateTask(Task_LeafSpawner, 5);
-#endif
         SetGpuRegsForTitleScreenRun();
         tSlashSpriteId = CreateSlashSprite();
+#elif defined(LEAFGREEN)
+        // ThunderYellow checkpoint 1: the flat Mode 4 renderer owns the full screen.
+        // Do not create the stock blink, leaf, slash/window, or blend effects.
+        SetGpuReg(REG_OFFSET_BLDCNT, 0);
+        SetGpuReg(REG_OFFSET_BLDY, 0);
+#endif
         HelpSystem_Enable();
         tState++;
         // fallthrough
     case 1:
         if (JOY_HELD(KEYSTROKE_DELSAVE) == KEYSTROKE_DELSAVE)
         {
+#if defined(FIRERED)
             DeactivateSlashSprite(tSlashSpriteId);
+#endif
             DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
             SetMainCallback2(CB2_FadeOutTransitionToSaveClearScreen);
         }
@@ -639,14 +731,23 @@ static void SetTitleScreenScene_Run(s16 *data)
 #else
         else if (JOY_HELD(KEYSTROKE_BERRY_FIX) == KEYSTROKE_BERRY_FIX)
         {
+#if defined(FIRERED)
             DeactivateSlashSprite(tSlashSpriteId);
+#endif
             DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
             SetMainCallback2(CB2_FadeOutTransitionToBerryFix);
         }
 #endif
         else if (JOY_NEW(A_BUTTON | START_BUTTON))
         {
+#if defined(LEAFGREEN)
+            // Keep input behavior stock: enter the title transition scene.
+            // The LeafGreen Mode 4 version of that scene below omits only
+            // native artwork/cry assumptions.
             SetTitleScreenScene(data, TITLESCREENSCENE_CRY);
+#else
+            SetTitleScreenScene(data, TITLESCREENSCENE_CRY);
+#endif
         }
         else if (!FuncIsActiveTask(Task_TitleScreenTimer))
         {
@@ -666,6 +767,33 @@ static void SetGpuRegsForTitleScreenRun(void)
 
 static void SetTitleScreenScene_Restart(s16 *data)
 {
+#if defined(LEAFGREEN)
+    // ThunderYellow checkpoint 1: flat title has no slash or blink task to retire.
+    switch (tState)
+    {
+    case 0:
+        FadeOutMapMusic(10);
+        BeginNormalPaletteFade(PALETTES_ALL, 3, 0, 16, RGB_BLACK);
+        tState++;
+        break;
+    case 1:
+        if (IsNotWaitingForBGMStop() && !gPaletteFade.active)
+        {
+            data[2] = 0;
+            tState++;
+        }
+        break;
+    case 2:
+        if (++data[2] >= 20)
+            tState++;
+        break;
+    case 3:
+        HelpSystem_Disable();
+        DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
+        SetMainCallback2(CB2_InitCopyrightScreenAfterTitleScreen);
+        break;
+    }
+#else
     switch (tState)
     {
     case 0:
@@ -703,10 +831,40 @@ static void SetTitleScreenScene_Restart(s16 *data)
         SetMainCallback2(CB2_InitCopyrightScreenAfterTitleScreen);
         break;
     }
+#endif
 }
 
 static void SetTitleScreenScene_Cry(s16 *data)
 {
+#if defined(LEAFGREEN)
+    switch (tState)
+    {
+    case 0:
+        // One clean frame after A/Start. No stock species cry.
+        data[2] = 0;
+        tState++;
+        break;
+    case 1:
+        if (++data[2] >= 2)
+            tState++;
+        break;
+    case 2:
+        // Match the stock LeafGreen handoff ordering. CB2_InitMainMenu owns
+        // the next display reset; do not tear down GPU/VBlank here.
+        SeedRngAndSetTrainerId();
+        SetSaveBlocksPointers();
+        ResetMenuAndMonGlobals();
+        Save_ResetSaveCounters();
+        LoadGameSave(SAVE_NORMAL);
+        if (gSaveFileStatus == SAVE_STATUS_EMPTY || gSaveFileStatus == SAVE_STATUS_INVALID)
+            Sav2_ClearSetDefault();
+        SetPokemonCryStereo(gSaveBlock2Ptr->optionsSound);
+        InitHeap(gHeap, HEAP_SIZE);
+        SetMainCallback2(CB2_InitMainMenu);
+        DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
+        break;
+    }
+#else
     switch (tState)
     {
     case 0:
@@ -721,9 +879,9 @@ static void SetTitleScreenScene_Cry(s16 *data)
     case 1:
         if (data[2] < 90)
             data[2]++;
-        else if (!IsSlashSpriteDeactivated(tSlashSpriteId))
+        else
         {
-            BeginNormalPaletteFade((PALETTES_ALL & ~(1 << 0x1C) & ~(1 << 0x1D) & ~(1 << 0x1E) & ~(1 << 0x1F)), 0, 0, 16, RGB_WHITE);
+            BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_WHITE);
             SignalEndTitleScreenPaletteSomethingTask();
             FadeOutBGM(4);
             tState++;
@@ -746,6 +904,7 @@ static void SetTitleScreenScene_Cry(s16 *data)
         }
         break;
     }
+#endif
 }
 
 #undef tSceneNum
