@@ -96,14 +96,14 @@ static const u16 sThunderYellowTitlePalette[] = {
 // Checkpoint-1 flat framebuffer staging area. The marker makes the 38,400-byte
 // payload location deterministic in the built ROM for the Delta test patch.
 #define THUNDERYELLOW_TITLE_MARKER_WORDS 8
-static const volatile u16 sThunderYellowTitleBitmap[THUNDERYELLOW_TITLE_MARKER_WORDS + (240 * 160 / 2)] = {
+static const u16 sThunderYellowTitleBitmap[THUNDERYELLOW_TITLE_MARKER_WORDS + (240 * 160 / 2)] = {
     0x5954, 0x4D5F, 0x444F, 0x3445, 0x425F, 0x5449, 0x414D, 0x0050
 };
 
 static void LoadThunderYellowMode4Title(void)
 {
     u32 i;
-    const volatile u16 *src = &sThunderYellowTitleBitmap[THUNDERYELLOW_TITLE_MARKER_WORDS];
+    const u16 *src = &sThunderYellowTitleBitmap[THUNDERYELLOW_TITLE_MARKER_WORDS];
     vu16 *dst = (vu16 *)VRAM;
 
     // Mode 4 uses palette index 0 as a normal framebuffer color, so write the
