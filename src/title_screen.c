@@ -773,7 +773,6 @@ static void SetTitleScreenScene_Run(s16 *data)
             if (gSaveFileStatus == SAVE_STATUS_EMPTY || gSaveFileStatus == SAVE_STATUS_INVALID)
                 Sav2_ClearSetDefault();
             SetPokemonCryStereo(gSaveBlock2Ptr->optionsSound);
-            FadeOutBGM(4);
             SetVBlankCallback(NULL);
             ScheduleStopScanlineEffect();
             if (sTitleScreenTimerTaskId != TASK_NONE)
