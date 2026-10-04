@@ -861,12 +861,15 @@ static void SetTitleScreenScene_Cry(s16 *data)
     switch (tState)
     {
     case 0:
-        // One clean frame after A/Start. No stock species cry.
+        // Checkpoint 1 audio: play Pikachu's cry on A/Start while leaving
+        // the locked Mode 4 title visual completely untouched.
+        PlayCry_Normal(SPECIES_PIKACHU, 0);
         data[2] = 0;
         tState++;
         break;
     case 1:
-        if (++data[2] >= 2)
+        // Give the cry time to finish before the main-menu reset can stop it.
+        if (++data[2] >= 90)
             tState++;
         break;
     case 2:
