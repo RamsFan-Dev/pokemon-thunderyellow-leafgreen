@@ -4,8 +4,7 @@ PokedexRating_Text_HowIsPokedexComingAlong::
 	.string "Here, let me take a look.$"
 
 PokedexRating_Text_SeenXOwnedY::
-	.string "The amount of progress you've made\n"
-	.string "on your POKéDEX is:\p"
+	.string "Your KANTO POKéDEX progress is:\p"
 	.string "{STR_VAR_1} POKéMON seen and\n"
 	.string "{STR_VAR_2} POKéMON owned.\p"
 	.string "{FONT_NORMAL}PROF. OAK's rating:$"
@@ -87,9 +86,10 @@ PokedexRating_Text_Complete::
 	.string "Congratulations!!$"
 
 PokedexRating_Text_NationalDexSeenXOwnedY::
-	.string "And your NATIONAL POKéDEX is:\p"
+	.string "Your NATIONAL POKéDEX is:\p"
 	.string "{STR_VAR_1} POKéMON seen and\n"
-	.string "{STR_VAR_2} POKéMON owned.$"
+	.string "{STR_VAR_2} POKéMON owned.\p"
+	.string "There are 386 species in all.$"
 
 PokedexRating_Text_LookForwardToFilledNationalDex::
 	.string "I'll be looking forward to seeing\n"
