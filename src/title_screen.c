@@ -861,15 +861,15 @@ static void SetTitleScreenScene_Cry(s16 *data)
     switch (tState)
     {
     case 0:
-        // Checkpoint 1 audio: play Pikachu's cry on A/Start while leaving
-        // the locked Mode 4 title visual completely untouched.
-        PlayCry_Normal(SPECIES_PIKACHU, 0);
+        // Audio donor work: do not use the stock Gen III Pikachu cry here.
+        // That cry is the electronic/roar-like sound the user rejected.
+        // Keep the approved visual and transition path intact while the
+        // spoken Pikachu title sample is transplanted separately.
         data[2] = 0;
         tState++;
         break;
     case 1:
-        // Give the cry time to finish before the main-menu reset can stop it.
-        if (++data[2] >= 90)
+        if (++data[2] >= 2)
             tState++;
         break;
     case 2:
