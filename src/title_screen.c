@@ -863,12 +863,15 @@ static void SetTitleScreenScene_Cry(s16 *data)
     switch (tState)
     {
     case 0:
-        // One clean frame after A/Start. No stock species cry.
+        // Preserve the confirmed Test 8 Mode 4 title path. Trigger the title
+        // cry only after A/Start, matching the stock FireRed/LeafGreen order.
+        PlayCry_Normal(TITLE_SPECIES, 0);
         data[2] = 0;
         tState++;
         break;
     case 1:
-        if (++data[2] >= 2)
+        // Stock titles leave time for the cry before handing off to the menu.
+        if (++data[2] >= 90)
             tState++;
         break;
     case 2:
