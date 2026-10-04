@@ -10,6 +10,7 @@ on:
       - "src/pokedex.c"
       - "data/text/pokedex_rating.inc"
       - "data/maps/PalletTown_ProfessorOaksLab/scripts.inc"
+      - "data/maps/PalletTown_ProfessorOaksLab/text.inc"
       - "src/data/thunderyellow_supplemental_mons.h"
       - "src/wild_encounter.c"
       - "sound/direct_sound_samples/**"
