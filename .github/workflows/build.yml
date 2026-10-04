@@ -3,6 +3,8 @@ name: ThunderYellow LeafGreen Checkpoint
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 # checkpoint-1 PR artifact bridge
