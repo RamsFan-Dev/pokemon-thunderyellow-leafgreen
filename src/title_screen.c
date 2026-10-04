@@ -74,7 +74,7 @@ static bool32 IsSlashSpriteDeactivated(u8 spriteId);
 static void SpriteCallback_Slash(struct Sprite *sprite);
 
 #if defined(LEAFGREEN)
-static const u16 sThunderYellowTitlePalette[256] = {
+static const u16 sThunderYellowTitlePalette[] = {
 0x7BFF,0x6BFF,0x77DF,0x67DF,0x5FFF,0x5FDF,0x4BFF,0x4FDF,0x5BDF,0x6FBD,0x57DF,0x53BE,0x47BF,0x4BBE,0x479F,0x479E,
 0x3BDF,0x37DF,0x37BF,0x37BF,0x2FBF,0x37BF,0x379E,0x2B9F,0x2B9F,0x339F,0x2B9F,0x3B9E,0x2F9E,0x279F,0x279F,0x279F,
 0x279E,0x537C,0x3B7E,0x377E,0x377D,0x2F7F,0x2F7F,0x2F7E,0x2F5E,0x2B7F,0x2B7F,0x2B7F,0x2B7F,0x2B7F,0x2B7E,0x2B7E,0x2B7E,
@@ -117,7 +117,7 @@ static void LoadThunderYellowMode4Title(void)
     for (i = 0; i < 240 * 160 / 2; i++)
         dst[i] = src[i];
 
-    LoadPalette(sThunderYellowTitlePalette, 0, sizeof(sThunderYellowTitlePalette));
+    LoadPalette(sThunderYellowTitlePalette, 0, 256 * sizeof(u16));
 }
 #endif
 
@@ -560,6 +560,7 @@ static void SetTitleScreenScene(s16 *data, u8 sceneNum)
 
 static void SetTitleScreenScene_Init(s16 *data)
 {
+    struct ScanlineEffectParams params;
 #if defined(LEAFGREEN)
     // ThunderYellow checkpoint 1: skip the stock Venusaur/leaf reveal sequence.
     // The final flattened title renderer owns the presentation; keep title input/cry/menu state machine intact.
@@ -567,7 +568,6 @@ static void SetTitleScreenScene_Init(s16 *data)
     SetTitleScreenScene(data, TITLESCREENSCENE_RUN);
     return;
 #endif
-    struct ScanlineEffectParams params;
 
     HideBg(0);
     ShowBg(1);
