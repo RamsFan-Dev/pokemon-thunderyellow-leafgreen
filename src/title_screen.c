@@ -761,7 +761,24 @@ static void SetTitleScreenScene_Run(s16 *data)
 #endif
         else if (JOY_NEW(A_BUTTON | START_BUTTON))
         {
+#if defined(LEAFGREEN)
+            // Flat Mode 4 checkpoint: bypass the stock title cry/fade state
+            // machine entirely. It assumes the native tiled title and is the
+            // remaining source of the roar/lockup after Start.
+            HelpSystem_Disable();
+            SetVBlankCallback(NULL);
+            ScheduleStopScanlineEffect();
+            m4aMPlayAllStop();
+            DestroyTask(FindTaskIdByFunc(Task_TitleScreenTimer));
+            sTitleScreenTimerTaskId = TASK_NONE;
+            DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
+            ResetPaletteFade();
+            ResetGpuRegs();
+            SetMainCallback2(CB2_InitMainMenu);
+            return;
+#else
             SetTitleScreenScene(data, TITLESCREENSCENE_CRY);
+#endif
         }
         else if (!FuncIsActiveTask(Task_TitleScreenTimer))
         {
