@@ -1,0 +1,29 @@
+ThunderYellow LeafGreen — CHECKPOINT 1 TITLE VISUAL LOCK
+
+Status: USER-APPROVED VISUAL PASS
+Approved test ROM: ThunderYellow-LeafGreen-Test8R2-ScreenFix.gba
+Approved ROM SHA-256:
+70e09402ff74b2fe1898586e62182d9540550a3f3677145101be1e7f382d7be4
+
+Verified Mode 4 framebuffer:
+Size: 38,400 bytes
+Marker in approved ROM: TY_MODE4_BITMAP\0
+Marker offset in approved ROM: 0x003BF6A0
+Framebuffer begins immediately after the 16-byte marker.
+Framebuffer SHA-256:
+36e8f90cdafdf58c92aef63ad6480ee757c10f4a4d06bb20f9f9201e0a59645f
+
+Verified 256-color GBA BGR555 palette:
+Size: 512 bytes
+Palette offset in approved ROM: 0x003BF4A0
+Palette SHA-256:
+0750c1b18486910bd51f27c1e96f3208390627f41d17757c0af78e6e6c4a55dc
+
+Renderer baseline commit:
+a9d9bd899b248702a1a83ada466e80a70d9e9d03
+
+Behavior intentionally NOT locked yet:
+- Pikachu title cry/audio
+
+Do not modify this branch for audio or later gameplay work.
+Branch purpose: permanent rollback point for the approved title visual.
