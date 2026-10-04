@@ -47,6 +47,22 @@ static void CreateFanfareTask(void);
 static void Task_DuckBGMForPokemonCry(u8 taskId);
 static void RestoreBGMVolumeAfterPokemonCry(void);
 
+static const u8 sPikachuTitleVoiceSample[] = INCBIN_U8("sound/direct_sound_samples/cries/pikachu_title_voice.bin");
+
+static struct ToneData sPikachuTitleVoiceTone =
+{
+    .type = 0x20,
+    .key = 60,
+    .length = 0,
+    .pan_sweep = 0,
+    .wav = (struct WaveData *)sPikachuTitleVoiceSample,
+    .attack = 255,
+    .decay = 0,
+    .sustain = 255,
+    .release = 0,
+};
+
+
 static const struct Fanfare sFanfares[] = {
     [FANFARE_LEVEL_UP]      = { MUS_LEVEL_UP,         80 },
     [FANFARE_OBTAIN_ITEM]   = { MUS_OBTAIN_ITEM,     160 },
@@ -314,6 +330,24 @@ bool8 IsBGMStopped(void)
     if (!(gMPlayInfo_BGM.status & MUSICPLAYER_STATUS_TRACK))
         return TRUE;
     return FALSE;
+}
+
+void PlayPikachuTitleVoice(void)
+{
+    // Exact compressed Pikachu voice sample recovered from the known-good Kevin donor ROM.
+    // Keep this title-only so normal in-game Pikachu cries remain untouched.
+    m4aMPlayVolumeControl(&gMPlayInfo_BGM, TRACKS_ALL, 85);
+    SetPokemonCryVolume(CRY_VOLUME);
+    SetPokemonCryPanpot(0);
+    SetPokemonCryPitch(15360);
+    SetPokemonCryLength(140);
+    SetPokemonCryProgress(0);
+    SetPokemonCryRelease(0);
+    SetPokemonCryChorus(0);
+    SetPokemonCryPriority(CRY_PRIORITY_NORMAL);
+    gMPlay_PokemonCry = SetPokemonCryTone(&sPikachuTitleVoiceTone);
+    gPokemonCryBGMDuckingCounter = 2;
+    RestoreBGMVolumeAfterPokemonCry();
 }
 
 void PlayCry_Normal(u16 species, s8 pan)
