@@ -49,18 +49,10 @@ static void RestoreBGMVolumeAfterPokemonCry(void);
 
 static const u8 sPikachuTitleVoiceSample[] = INCBIN_U8("sound/direct_sound_samples/cries/pikachu_title_voice.bin");
 
-static const struct ToneData sPikachuTitleVoiceTone =
-{
-    .type = 0x20,
-    .key = 60,
-    .length = 0,
-    .pan_sweep = 0,
-    .wav = (struct WaveData *)sPikachuTitleVoiceSample,
-    .attack = 255,
-    .decay = 0,
-    .sustain = 255,
-    .release = 0,
-};
+// Keep the donor tone in BSS and initialize it at playback time.
+// A ROM pointer inside a static ToneData initializer makes old agbcc place
+// the object in .data, which overflows/discards EWRAM in the LeafGreen link.
+static struct ToneData sPikachuTitleVoiceTone;
 
 
 static const struct Fanfare sFanfares[] = {
@@ -336,6 +328,16 @@ void PlayPikachuTitleVoice(void)
 {
     // Exact compressed Pikachu voice sample recovered from the known-good Kevin donor ROM.
     // Keep this title-only so normal in-game Pikachu cries remain untouched.
+    sPikachuTitleVoiceTone.type = 0x20;
+    sPikachuTitleVoiceTone.key = 60;
+    sPikachuTitleVoiceTone.length = 0;
+    sPikachuTitleVoiceTone.pan_sweep = 0;
+    sPikachuTitleVoiceTone.wav = (struct WaveData *)sPikachuTitleVoiceSample;
+    sPikachuTitleVoiceTone.attack = 255;
+    sPikachuTitleVoiceTone.decay = 0;
+    sPikachuTitleVoiceTone.sustain = 255;
+    sPikachuTitleVoiceTone.release = 0;
+
     m4aMPlayVolumeControl(&gMPlayInfo_BGM, TRACKS_ALL, 85);
     SetPokemonCryVolume(CRY_VOLUME);
     SetPokemonCryPanpot(0);
