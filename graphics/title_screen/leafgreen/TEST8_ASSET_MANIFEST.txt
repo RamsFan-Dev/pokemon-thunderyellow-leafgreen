@@ -1,0 +1,28 @@
+ThunderYellow LeafGreen — verified Test 8 title asset manifest
+
+Known-good source ROM:
+ThunderYellow-LeafGreen-IMAGE-RESTORE-Test8R.gba
+SHA-256: f4dde7f96494c50f7fd3587159b03cf25bc28b0ce9246bd98a4fa1f41176c336
+
+Recovered Mode 4 framebuffer:
+ROM offset: 0x003BF6A4
+Size: 38,400 bytes (240x160 indexed 8bpp)
+SHA-256: 36e8f90cdafdf58c92aef63ad6480ee757c10f4a4d06bb20f9f9201e0a59645f
+
+Recovered GBA BGR555 palette:
+ROM offset: 0x003BF4A4
+Size: 512 bytes (256 colors)
+SHA-256: 0750c1b18486910bd51f27c1e96f3208390627f41d17757c0af78e6e6c4a55dc
+
+Marker:
+TY_MODE4_BITMAP at ROM offset 0x003BF694
+Framebuffer begins immediately after the 16-byte marker.
+
+Renderer baseline:
+Commit 3b02ceef56316bc86ea01e7ab62432139dadfc3b
+Key repair: LeafGreen Mode 4 path must bypass stock title HBlank DMA and palette transfer.
+
+Working branch:
+checkpoint1-test8-verified
+
+Do not merge checkpoint 1 to main until the built ROM reproduces the recovered framebuffer/palette and passes title/A-Start testing.
