@@ -7,6 +7,9 @@ on:
     paths:
       - "src/title_screen.c"
       - "src/data/wild_encounters.json"
+      - "sound/direct_sound_samples/**"
+      - "include/sound.h"
+      - "src/sound.c"
       - "graphics/title_screen/**"
       - ".github/workflows/build-checkpoint-1.yml"
 
