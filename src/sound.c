@@ -49,7 +49,7 @@ static void RestoreBGMVolumeAfterPokemonCry(void);
 
 static const u8 sPikachuTitleVoiceSample[] = INCBIN_U8("sound/direct_sound_samples/cries/pikachu_title_voice.bin");
 
-static struct ToneData sPikachuTitleVoiceTone =
+static const struct ToneData sPikachuTitleVoiceTone =
 {
     .type = 0x20,
     .key = 60,
@@ -345,7 +345,7 @@ void PlayPikachuTitleVoice(void)
     SetPokemonCryRelease(0);
     SetPokemonCryChorus(0);
     SetPokemonCryPriority(CRY_PRIORITY_NORMAL);
-    gMPlay_PokemonCry = SetPokemonCryTone(&sPikachuTitleVoiceTone);
+    gMPlay_PokemonCry = SetPokemonCryTone((struct ToneData *)&sPikachuTitleVoiceTone);
     gPokemonCryBGMDuckingCounter = 2;
     RestoreBGMVolumeAfterPokemonCry();
 }
