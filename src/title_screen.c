@@ -855,9 +855,13 @@ static void SetTitleScreenScene_Cry(s16 *data)
     case 0:
         if (!gPaletteFade.active)
         {
-            PlayCry_Normal(SPECIES_PIKACHU, 0);
 #if defined(FIRERED)
+            PlayCry_Normal(TITLE_SPECIES, 0);
             DeactivateSlashSprite(tSlashSpriteId);
+#elif defined(LEAFGREEN)
+            // Checkpoint 1: do not play the stock Gen III species cry here.
+            // The ThunderYellow spoken Pikachu sample will be wired separately;
+            // silence is preferable to the incorrect Venusaur/Bulbasaur-style roar.
 #endif
             data[2] = 0;
             tState++;
@@ -887,6 +891,13 @@ static void SetTitleScreenScene_Cry(s16 *data)
             if (gSaveFileStatus == SAVE_STATUS_EMPTY || gSaveFileStatus == SAVE_STATUS_INVALID)
                 Sav2_ClearSetDefault();
             SetPokemonCryStereo(gSaveBlock2Ptr->optionsSound);
+#if defined(LEAFGREEN)
+            // The flat Mode 4 VBlank callback continuously forces title-screen
+            // display registers. Detach it before handing control to the normal
+            // tiled main menu or the menu can freeze behind the title frame.
+            SetVBlankCallback(NULL);
+            ScheduleStopScanlineEffect();
+#endif
             InitHeap(gHeap, HEAP_SIZE);
             SetMainCallback2(CB2_InitMainMenu);
             DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
