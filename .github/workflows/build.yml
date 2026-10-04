@@ -3,9 +3,11 @@ name: ThunderYellow LeafGreen Checkpoint
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
-# checkpoint-1 build trigger
+# checkpoint-1 PR artifact bridge
 
 jobs:
   build-leafgreen-rev1:
