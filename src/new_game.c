@@ -3,6 +3,7 @@
 #include "random.h"
 #include "overworld.h"
 #include "constants/maps.h"
+#include "constants/pokemon.h"
 #include "load_save.h"
 #include "item_menu.h"
 #include "tm_case.h"
@@ -32,6 +33,7 @@
 
 // this file's functions
 static void ResetMiniGamesResults(void);
+static void PopulateNationalDexVerificationBoxes(void);
 
 // EWRAM vars
 EWRAM_DATA bool8 gDifferentSaveFile = FALSE;
@@ -134,6 +136,7 @@ void NewGameInitData(void)
     gPlayerPartyCount = 0;
     ZeroPlayerPartyMons();
     ResetPokemonStorageSystem();
+    PopulateNationalDexVerificationBoxes();
     ClearRoamerData();
     gSaveBlock1Ptr->registeredItem = 0;
     ClearBag();
@@ -149,6 +152,30 @@ void NewGameInitData(void)
     RunScriptImmediately(EventScript_ResetAllMapFlags);
     StringCopy(gSaveBlock1Ptr->rivalName, rivalName);
     ResetTrainerTowerResults();
+}
+
+static void PopulateNationalDexVerificationBoxes(void)
+{
+    u16 species;
+    u16 index = 0;
+    struct BoxPokemon *boxMon;
+
+    // Verification build only: exactly one of each National Dex species.
+    // Boxes 1-9: #001-251. Boxes 9-13 continue with #252-386.
+    // Internal OLD_UNOWN placeholder species IDs 252-276 are intentionally skipped.
+    for (species = SPECIES_BULBASAUR; species <= SPECIES_CELEBI; species++)
+    {
+        boxMon = GetBoxedMonPtr(index / IN_BOX_COUNT, index % IN_BOX_COUNT);
+        CreateBoxMon(boxMon, species, 50, MAX_PER_STAT_IVS, FALSE, 0, OT_ID_PLAYER_ID, 0);
+        index++;
+    }
+
+    for (species = SPECIES_TREECKO; species <= SPECIES_CHIMECHO; species++)
+    {
+        boxMon = GetBoxedMonPtr(index / IN_BOX_COUNT, index % IN_BOX_COUNT);
+        CreateBoxMon(boxMon, species, 50, MAX_PER_STAT_IVS, FALSE, 0, OT_ID_PLAYER_ID, 0);
+        index++;
+    }
 }
 
 static void ResetMiniGamesResults(void)
