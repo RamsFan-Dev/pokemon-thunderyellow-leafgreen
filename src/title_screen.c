@@ -762,28 +762,10 @@ static void SetTitleScreenScene_Run(s16 *data)
         else if (JOY_NEW(A_BUTTON | START_BUTTON))
         {
 #if defined(LEAFGREEN)
-            // Preserve the known-good Mode 4 title until the user actually
-            // presses A/Start. Then perform the normal save/menu setup here,
-            // but skip the native LeafGreen cry/fade scene completely.
-            SeedRngAndSetTrainerId();
-            SetSaveBlocksPointers();
-            ResetMenuAndMonGlobals();
-            Save_ResetSaveCounters();
-            LoadGameSave(SAVE_NORMAL);
-            if (gSaveFileStatus == SAVE_STATUS_EMPTY || gSaveFileStatus == SAVE_STATUS_INVALID)
-                Sav2_ClearSetDefault();
-            SetPokemonCryStereo(gSaveBlock2Ptr->optionsSound);
-            SetVBlankCallback(NULL);
-            ScheduleStopScanlineEffect();
-            if (sTitleScreenTimerTaskId != TASK_NONE)
-            {
-                DestroyTask(sTitleScreenTimerTaskId);
-                sTitleScreenTimerTaskId = TASK_NONE;
-            }
-            InitHeap(gHeap, HEAP_SIZE);
-            SetMainCallback2(CB2_InitMainMenu);
-            DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
-            return;
+            // Keep input behavior stock: enter the title transition scene.
+            // The LeafGreen Mode 4 version of that scene below omits only
+            // native artwork/cry assumptions.
+            SetTitleScreenScene(data, TITLESCREENSCENE_CRY);
 #else
             SetTitleScreenScene(data, TITLESCREENSCENE_CRY);
 #endif
@@ -875,19 +857,42 @@ static void SetTitleScreenScene_Restart(s16 *data)
 
 static void SetTitleScreenScene_Cry(s16 *data)
 {
+#if defined(LEAFGREEN)
+    switch (tState)
+    {
+    case 0:
+        // One clean frame after A/Start. No stock species cry.
+        data[2] = 0;
+        tState++;
+        break;
+    case 1:
+        if (++data[2] >= 2)
+            tState++;
+        break;
+    case 2:
+        // Match the stock LeafGreen handoff ordering. CB2_InitMainMenu owns
+        // the next display reset; do not tear down GPU/VBlank here.
+        SeedRngAndSetTrainerId();
+        SetSaveBlocksPointers();
+        ResetMenuAndMonGlobals();
+        Save_ResetSaveCounters();
+        LoadGameSave(SAVE_NORMAL);
+        if (gSaveFileStatus == SAVE_STATUS_EMPTY || gSaveFileStatus == SAVE_STATUS_INVALID)
+            Sav2_ClearSetDefault();
+        SetPokemonCryStereo(gSaveBlock2Ptr->optionsSound);
+        InitHeap(gHeap, HEAP_SIZE);
+        SetMainCallback2(CB2_InitMainMenu);
+        DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
+        break;
+    }
+#else
     switch (tState)
     {
     case 0:
         if (!gPaletteFade.active)
         {
-#if defined(FIRERED)
             PlayCry_Normal(TITLE_SPECIES, 0);
             DeactivateSlashSprite(tSlashSpriteId);
-#elif defined(LEAFGREEN)
-            // Checkpoint 1: do not play the stock Gen III species cry here.
-            // The ThunderYellow spoken Pikachu sample will be wired separately;
-            // silence is preferable to the incorrect Venusaur/Bulbasaur-style roar.
-#endif
             data[2] = 0;
             tState++;
         }
@@ -898,9 +903,7 @@ static void SetTitleScreenScene_Cry(s16 *data)
         else
         {
             BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_WHITE);
-#if defined(FIRERED)
             SignalEndTitleScreenPaletteSomethingTask();
-#endif
             FadeOutBGM(4);
             tState++;
         }
@@ -916,19 +919,13 @@ static void SetTitleScreenScene_Cry(s16 *data)
             if (gSaveFileStatus == SAVE_STATUS_EMPTY || gSaveFileStatus == SAVE_STATUS_INVALID)
                 Sav2_ClearSetDefault();
             SetPokemonCryStereo(gSaveBlock2Ptr->optionsSound);
-#if defined(LEAFGREEN)
-            // The flat Mode 4 VBlank callback continuously forces title-screen
-            // display registers. Detach it before handing control to the normal
-            // tiled main menu or the menu can freeze behind the title frame.
-            SetVBlankCallback(NULL);
-            ScheduleStopScanlineEffect();
-#endif
             InitHeap(gHeap, HEAP_SIZE);
             SetMainCallback2(CB2_InitMainMenu);
             DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
         }
         break;
     }
+#endif
 }
 
 #undef tSceneNum
