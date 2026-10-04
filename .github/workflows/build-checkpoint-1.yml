@@ -6,6 +6,7 @@ on:
     branches: [ main, checkpoint1-test8-verified, checkpoint1-audio-work, checkpoint2-full-national-dex ]
     paths:
       - "src/title_screen.c"
+      - "src/data/wild_encounters.json"
       - "graphics/title_screen/**"
       - ".github/workflows/build-checkpoint-1.yml"
 
