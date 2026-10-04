@@ -47,11 +47,16 @@ static void CreateFanfareTask(void);
 static void Task_DuckBGMForPokemonCry(u8 taskId);
 static void RestoreBGMVolumeAfterPokemonCry(void);
 
-static const u8 sPikachuTitleVoiceSample[] = INCBIN_U8("sound/direct_sound_samples/cries/pikachu_title_voice.bin");
+#define THUNDERYELLOW_TITLE_VOICE_SIZE 12952
 
-// Keep the donor tone in BSS and initialize it at playback time.
-// A ROM pointer inside a static ToneData initializer makes old agbcc place
-// the object in .data, which overflows/discards EWRAM in the LeafGreen link.
+// Fixed-size ROM placeholder for the exact approved R4 spoken Pikachu sample.
+// The test-ROM packaging step replaces this complete array byte-for-byte.
+// Keeping the placeholder in ROM avoids EWRAM pressure and keeps this title-only.
+static const u8 sPikachuTitleVoiceSample[THUNDERYELLOW_TITLE_VOICE_SIZE] =
+{
+    'T', 'Y', '_', 'P', 'I', 'K', 'A', '_', 'V', 'O', 'I', 'C', 'E', 0
+};
+
 static struct ToneData sPikachuTitleVoiceTone;
 
 
