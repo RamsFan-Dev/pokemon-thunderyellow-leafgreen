@@ -10,6 +10,7 @@ on:
       - "src/data/thunderyellow_supplemental_mons.h"
       - "src/wild_encounter.c"
       - "sound/direct_sound_samples/**"
+      - "sound/cry_tables.inc"
       - "include/sound.h"
       - "src/sound.c"
       - "graphics/title_screen/**"
