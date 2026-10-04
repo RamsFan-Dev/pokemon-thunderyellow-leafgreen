@@ -7,6 +7,9 @@ on:
     paths:
       - "src/title_screen.c"
       - "src/data/wild_encounters.json"
+      - "src/pokedex.c"
+      - "data/text/pokedex_rating.inc"
+      - "data/maps/PalletTown_ProfessorOaksLab/scripts.inc"
       - "src/data/thunderyellow_supplemental_mons.h"
       - "src/wild_encounter.c"
       - "sound/direct_sound_samples/**"
