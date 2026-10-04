@@ -24,7 +24,7 @@ gCryTable::
 	cry Cry_Fearow
 	cry Cry_Ekans
 	cry Cry_Arbok
-	cry Cry_Pikachu
+	voice_directsound 60, 0, Cry_Pikachu, 255, 0, 255, 0
 	cry Cry_Raichu
 	cry Cry_Sandshrew
 	cry Cry_Sandslash
