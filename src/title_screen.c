@@ -762,19 +762,28 @@ static void SetTitleScreenScene_Run(s16 *data)
         else if (JOY_NEW(A_BUTTON | START_BUTTON))
         {
 #if defined(LEAFGREEN)
-            // Flat Mode 4 checkpoint: bypass the stock title cry/fade state
-            // machine entirely. It assumes the native tiled title and is the
-            // remaining source of the roar/lockup after Start.
-            HelpSystem_Disable();
+            // Preserve the known-good Mode 4 title until the user actually
+            // presses A/Start. Then perform the normal save/menu setup here,
+            // but skip the native LeafGreen cry/fade scene completely.
+            SeedRngAndSetTrainerId();
+            SetSaveBlocksPointers();
+            ResetMenuAndMonGlobals();
+            Save_ResetSaveCounters();
+            LoadGameSave(SAVE_NORMAL);
+            if (gSaveFileStatus == SAVE_STATUS_EMPTY || gSaveFileStatus == SAVE_STATUS_INVALID)
+                Sav2_ClearSetDefault();
+            SetPokemonCryStereo(gSaveBlock2Ptr->optionsSound);
+            FadeOutBGM(4);
             SetVBlankCallback(NULL);
             ScheduleStopScanlineEffect();
-            m4aMPlayAllStop();
-            DestroyTask(FindTaskIdByFunc(Task_TitleScreenTimer));
-            sTitleScreenTimerTaskId = TASK_NONE;
-            DestroyTask(FindTaskIdByFunc(Task_TitleScreenMain));
-            ResetPaletteFade();
-            ResetGpuRegs();
+            if (sTitleScreenTimerTaskId != TASK_NONE)
+            {
+                DestroyTask(sTitleScreenTimerTaskId);
+                sTitleScreenTimerTaskId = TASK_NONE;
+            }
+            InitHeap(gHeap, HEAP_SIZE);
             SetMainCallback2(CB2_InitMainMenu);
+            DestroyTask(taskId);
             return;
 #else
             SetTitleScreenScene(data, TITLESCREENSCENE_CRY);
