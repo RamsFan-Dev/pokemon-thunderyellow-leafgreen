@@ -503,6 +503,17 @@ static void CB2_TitleScreenRun(void)
 
 static void VBlankCB(void)
 {
+#if defined(LEAFGREEN)
+    REG_BG2PA = 0x100;
+    REG_BG2PB = 0;
+    REG_BG2PC = 0;
+    REG_BG2PD = 0x100;
+    REG_BG2X = 0;
+    REG_BG2Y = 0;
+    SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_MODE_4 | DISPCNT_BG2_ON);
+    SetGpuReg(REG_OFFSET_BLDCNT, 0);
+    SetGpuReg(REG_OFFSET_BLDY, 0);
+#endif
     LoadOam();
     ProcessSpriteCopyRequests();
     TransferPlttBuffer();
@@ -843,7 +854,7 @@ static void SetTitleScreenScene_Cry(s16 *data)
     case 0:
         if (!gPaletteFade.active)
         {
-            PlayCry_Normal(TITLE_SPECIES, 0);
+            PlayCry_Normal(SPECIES_PIKACHU, 0);
 #if defined(FIRERED)
             DeactivateSlashSprite(tSlashSpriteId);
 #endif
