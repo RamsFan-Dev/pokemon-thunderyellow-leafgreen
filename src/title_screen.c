@@ -518,7 +518,9 @@ static void VBlankCB(void)
 #if !defined(LEAFGREEN)
     TransferPlttBuffer();
 #endif
+#if !defined(LEAFGREEN)
     ScanlineEffect_InitHBlankDmaTransfer();
+#endif
 
     if (sTitleScreenTimerTaskId != TASK_NONE)
         gTasks[sTitleScreenTimerTaskId].data[0]++;
