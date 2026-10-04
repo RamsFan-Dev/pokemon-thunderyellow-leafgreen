@@ -3,11 +3,12 @@ name: ThunderYellow LeafGreen Checkpoint 1
 on:
   workflow_dispatch:
   push:
-    branches: [ main, checkpoint1-test8-verified, checkpoint1-audio-work, checkpoint2-full-national-dex ]
+    branches: [ main, checkpoint1-test8-verified, checkpoint1-audio-work, checkpoint2-full-national-dex, checkpoint2-386-verification ]
     paths:
       - "src/title_screen.c"
       - "src/data/wild_encounters.json"
       - "src/pokedex.c"
+      - "src/new_game.c"
       - "data/text/pokedex_rating.inc"
       - "data/maps/PalletTown_ProfessorOaksLab/scripts.inc"
       - "data/maps/PalletTown_ProfessorOaksLab/text.inc"
