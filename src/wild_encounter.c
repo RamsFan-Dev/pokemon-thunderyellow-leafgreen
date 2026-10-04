@@ -263,6 +263,58 @@ enum
     WILD_AREA_FISHING,
 };
 
+#define TY_AREA_LAND  (1 << WILD_AREA_LAND)
+#define TY_AREA_WATER (1 << WILD_AREA_WATER)
+#define TY_AREA_ROCK  (1 << WILD_AREA_ROCKS)
+#define TY_AREA_FISH  (1 << WILD_AREA_FISHING)
+
+struct ThunderYellowSupplementalMon
+{
+    u16 species;
+    u8 minLevel;
+    u8 maxLevel;
+    u8 areaMask;
+};
+
+#include "data/thunderyellow_supplemental_mons.h"
+
+static u16 TryThunderYellowSupplementalMon(u16 originalSpecies, u8 level, u8 area)
+{
+    u16 i;
+    u16 eligibleCount = 0;
+    u16 pick;
+    u8 areaBit = 1 << area;
+
+    // Stock encounter remains the default. Supplemental Pokémon are an added
+    // 20% layer and never delete or rewrite the original LeafGreen tables.
+    if ((Random() % 100) >= 20)
+        return originalSpecies;
+
+    for (i = 0; i < ARRAY_COUNT(sThunderYellowSupplementalMons); i++)
+    {
+        const struct ThunderYellowSupplementalMon *mon = &sThunderYellowSupplementalMons[i];
+        if ((mon->areaMask & areaBit) && level >= mon->minLevel && level <= mon->maxLevel)
+            eligibleCount++;
+    }
+
+    if (eligibleCount == 0)
+        return originalSpecies;
+
+    pick = Random() % eligibleCount;
+    for (i = 0; i < ARRAY_COUNT(sThunderYellowSupplementalMons); i++)
+    {
+        const struct ThunderYellowSupplementalMon *mon = &sThunderYellowSupplementalMons[i];
+        if ((mon->areaMask & areaBit) && level >= mon->minLevel && level <= mon->maxLevel)
+        {
+            if (pick == 0)
+                return mon->species;
+            pick--;
+        }
+    }
+
+    return originalSpecies;
+}
+
 #define WILD_CHECK_REPEL    0x1
 #define WILD_CHECK_KEEN_EYE 0x2
 
@@ -287,7 +339,7 @@ static bool8 TryGenerateWildMon(const struct WildPokemonInfo * info, u8 area, u8
     {
         return FALSE;
     }
-    GenerateWildMon(info->wildPokemon[slot].species, level, slot);
+    GenerateWildMon(TryThunderYellowSupplementalMon(info->wildPokemon[slot].species, level, area), level, slot);
     return TRUE;
 }
 
@@ -295,8 +347,9 @@ static u16 GenerateFishingEncounter(const struct WildPokemonInfo * info, u8 rod)
 {
     u8 slot = ChooseWildMonIndex_Fishing(rod);
     u8 level = ChooseWildMonLevel(&info->wildPokemon[slot]);
-    GenerateWildMon(info->wildPokemon[slot].species, level, slot);
-    return info->wildPokemon[slot].species;
+    u16 species = TryThunderYellowSupplementalMon(info->wildPokemon[slot].species, level, WILD_AREA_FISHING);
+    GenerateWildMon(species, level, slot);
+    return species;
 }
 
 static bool8 DoWildEncounterRateDiceRoll(u16 encounterRate)
