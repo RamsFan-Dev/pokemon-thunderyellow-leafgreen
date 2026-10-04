@@ -862,8 +862,9 @@ static void SetTitleScreenScene_Cry(s16 *data)
     switch (tState)
     {
     case 0:
-        // Preserve the approved R4 behavior: title-only spoken Pikachu voice.
-        PlayPikachuTitleVoice();
+        // Use Pikachu's normal cry path here. The final test ROM patches only
+        // this cry's wave pointer to the exact approved R4 spoken Pikachu sample.
+        PlayCry_Normal(SPECIES_PIKACHU, 0);
         data[2] = 0;
         tState++;
         break;
